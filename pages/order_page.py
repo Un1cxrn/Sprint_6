@@ -28,7 +28,6 @@ class OrderPage(BasePage):
         self.send_keys(self.SURNAME_INPUT, surname)
         self.send_keys(self.ADDRESS_INPUT, address)
 
-        # Метро
         metro_input = self.find_element(self.METRO_INPUT)
         metro_input.click()
         metro_input.send_keys(metro)
@@ -38,35 +37,28 @@ class OrderPage(BasePage):
         )
         metro_option.click()
 
-        # Телефон
         self.send_keys(self.PHONE_INPUT, phone)
 
-        # Далее
         self.click(self.NEXT_BUTTON)
 
     def fill_second_form(self, date, period, comment, color):
         self.wait.until(EC.presence_of_element_located(self.SECOND_FORM_HEADER))
 
-        # Дата
         date_input = self.find_element(self.DATE_INPUT)
         date_input.send_keys(date)
         date_input.send_keys(Keys.ENTER)
 
-        # Срок аренды
         placeholder = self.find_element(self.DROPDOWN_PLACEHOLDER)
         ActionChains(self.driver).move_to_element(placeholder).click().perform()
         period_option = (By.XPATH, f"//div[text()='{period}']")
         self.click(period_option)
 
-        # Цвет
         color_locator = (By.XPATH, f"//label[@for='{color}']")
         self.click(color_locator)
 
-        # Комментарий
         if comment:
             self.send_keys(self.COMMENT_INPUT, comment)
 
-        # Кнопка Заказать
         self.click(self.ORDER_BUTTON)
 
     def confirm_order(self):
