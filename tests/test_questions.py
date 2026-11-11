@@ -1,9 +1,11 @@
+import allure
 import pytest
 from pages.main_page import MainPage
 
-
+@allure.feature("Вопросы и ответы (Аккордеон)")
 class TestQuestions:
 
+    @allure.title("Проверка текста ответа на вопрос №{index}")
     @pytest.mark.parametrize("index, expected_text", [
         (0, "Сутки — 400 рублей. Оплата курьеру — наличными или картой."),
         (1, "Пока что у нас так: один заказ — один самокат. Если хотите покататься с друзьями, можете просто сделать несколько заказов — один за другим."),

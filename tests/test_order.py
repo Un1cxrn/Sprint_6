@@ -1,12 +1,17 @@
+import allure
 import pytest
 from selenium.webdriver.support.ui import WebDriverWait
 from pages.main_page import MainPage
 from pages.order_page import OrderPage
 
 
+@allure.feature("Заказ самоката")
 class TestOrder:
-
-    @pytest.mark.parametrize("button_position", ["top", "bottom"])
+    @allure.title("Оформление заказа через {button_method.__name__}")
+    @pytest.mark.parametrize("button_method", [
+        MainPage.click_order_button_top,
+        MainPage.click_order_button_bottom
+    ])
     @pytest.mark.parametrize("user_data", [
         {
             "name": "Алексей", "surname": "Степанов", "address": "Москва, ул. Пушкина",
@@ -19,16 +24,13 @@ class TestOrder:
             "date": "12.11.2026", "period": "двое суток", "comment": "Домофон 12", "color": "grey"
         }
     ])
-    def test_order_flow(self, driver, button_position, user_data):
+    def test_order_flow(self, driver, button_method, user_data):
         main_page = MainPage(driver)
         order_page = OrderPage(driver)
 
         main_page.close_cookie_banner()
 
-        if button_position == "top":
-            main_page.click_order_button_top()
-        else:
-            main_page.click_order_button_bottom()
+        button_method(main_page)
 
         order_page.fill_first_form(
             user_data["name"], user_data["surname"],
@@ -42,19 +44,22 @@ class TestOrder:
         assert "Заказ оформлен" in order_page.get_success_message()
 
 
+@allure.feature("Логотипы")
 class TestLogos:
+
+    @allure.title("Переход на главную страницу по логотипу Самоката")
     def test_scooter_logo_redirect(self, driver):
         main_page = MainPage(driver)
         main_page.click_scooter_logo()
-        assert "qa-scooter.praktikum-services.ru" in driver.current_url
-
+        
+        assert "qa-scooter.praktikum-services.ru" in main_page.get_current_url()
+        
+    @allure.title("Переход на Дзен по логотипу Яндекса")
     def test_yandex_logo_redirect(self, driver):
         main_page = MainPage(driver)
         main_page.click_yandex_logo()
-
-        WebDriverWait(driver, 10).until(lambda d: len(d.window_handles) == 2)
-        driver.switch_to.window(driver.window_handles[1])
-        WebDriverWait(driver, 10).until(
-            lambda d: "dzen.ru" in d.current_url or "ya.ru" in d.current_url
-        )
-        assert "dzen.ru" in driver.current_url or "ya.ru" in driver.current_url
+        
+        main_page.switch_to_new_window()
+        main_page.wait_for_url_contains("dzen.ru")
+        
+        assert "dzen.ru" in main_page.get_current_url()
